@@ -2,21 +2,18 @@ import React from 'react';
 import { useInventoryStore } from '../../store/useInventoryStore';
 import type { ComputerStatus } from '../../types/inventory';
 import { StatusBadge } from '../common/StatusBadge';
-import { MaintenanceAccordion } from './MaintenanceAccordion';
 import { 
   Cpu, 
   HardDrive, 
+  MemoryStick, 
   MapPin, 
   UserCheck, 
   ArrowUpRight, 
   RotateCcw, 
   Barcode, 
-  Wrench,
   Trash2,
   Plus,
-  Laptop,
-  ChevronDown,
-  ChevronUp
+  Laptop
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -29,10 +26,9 @@ export const ComputerTable: React.FC = () => {
     openLoanModal, 
     openReturnModal,
     openRegisterDrawer,
+    updateStatus,
     deleteComputer,
-    computers,
-    expandedAccordions,
-    toggleAccordion
+    computers
   } = useInventoryStore();
 
   const filteredComputers = getFilteredComputers();
@@ -46,12 +42,12 @@ export const ComputerTable: React.FC = () => {
   ];
 
   return (
-    <div className="bg-[#2B124C] rounded-xl border border-[#522B5B] shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-brand-300/50 shadow-sm overflow-hidden">
       {/* Header de controles de la tabla: Tabs de filtrado y contador */}
-      <div className="p-4 border-b border-[#522B5B] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#190019]">
+      <div className="p-4 sm:p-5 border-b border-brand-300/40 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
         
         {/* Tabs de estado */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           {statusTabs.map((tab) => {
             const isActive = statusFilter === tab;
             const count = tab === 'Todos' 
@@ -64,19 +60,19 @@ export const ComputerTable: React.FC = () => {
                 type="button"
                 onClick={() => setStatusFilter(tab)}
                 className={cn(
-                  'px-3 py-1.5 rounded text-xs font-mono uppercase transition-all whitespace-nowrap flex items-center gap-1.5 border',
+                  'px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex items-center gap-1.5',
                   isActive
-                    ? 'bg-[#854F6C] text-[#FBE4D8] border-[#DFB6B2] shadow-sm font-semibold'
-                    : 'bg-[#2B124C] text-[#DFB6B2] border-[#522B5B] hover:bg-[#522B5B] hover:text-[#FBE4D8]'
+                    ? 'bg-brand-600 text-white font-semibold shadow-sm'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
                 )}
               >
                 <span>{tab}</span>
                 <span
                   className={cn(
-                    'px-1.5 py-0.2 rounded text-[10px]',
+                    'px-1.5 py-0.2 rounded-full text-[10px]',
                     isActive
-                      ? 'bg-black/30 text-[#FBE4D8]'
-                      : 'bg-[#190019] text-[#DFB6B2]'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-stone-100 text-stone-600'
                   )}
                 >
                   {count}
@@ -87,57 +83,59 @@ export const ComputerTable: React.FC = () => {
         </div>
 
         {/* Resumen de resultados */}
-        <div className="text-xs text-[#DFB6B2] flex items-center justify-between md:justify-end gap-3 font-mono">
+        <div className="text-xs text-stone-600 flex items-center justify-between md:justify-end gap-3">
           {searchQuery && (
             <span>
-              Filtrando por &quot;<span className="text-[#FBE4D8] font-semibold">{searchQuery}</span>&quot;:
+              Coincidencias para &quot;<span className="text-stone-900 font-semibold">{searchQuery}</span>&quot;:
             </span>
           )}
-          <span>
-            <strong className="text-[#FBE4D8]">{filteredComputers.length}</strong> {filteredComputers.length === 1 ? 'equipo' : 'equipos'}
+          <span className="font-mono text-stone-900 font-semibold">
+            {filteredComputers.length} {filteredComputers.length === 1 ? 'equipo' : 'equipos'}
           </span>
         </div>
       </div>
 
-      {/* Tabla Densa Técnica */}
+      {/* Tabla Densa en Modo Claro */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#522B5B] bg-[#190019] text-[11px] font-mono uppercase tracking-wider text-[#DFB6B2]">
-              <th scope="col" className="py-3 px-4">Código / Serial</th>
-              <th scope="col" className="py-3 px-4">Equipo & Modelo</th>
-              <th scope="col" className="py-3 px-4">Especificaciones</th>
-              <th scope="col" className="py-3 px-4">Ubicación Actual</th>
-              <th scope="col" className="py-3 px-4">Estado</th>
-              <th scope="col" className="py-3 px-4 text-right">Acciones</th>
+            <tr className="border-b border-brand-300/40 bg-stone-50 text-[11px] font-semibold tracking-wider text-stone-500 uppercase">
+              <th scope="col" className="py-3.5 px-4 sm:px-5">Código / ID</th>
+              <th scope="col" className="py-3.5 px-4 sm:px-5">Equipo & Modelo</th>
+              <th scope="col" className="py-3.5 px-4 sm:px-5">Especificaciones</th>
+              <th scope="col" className="py-3.5 px-4 sm:px-5">Ubicación Actual</th>
+              <th scope="col" className="py-3.5 px-4 sm:px-5">Estado</th>
+              <th scope="col" className="py-3.5 px-4 sm:px-5 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#522B5B] text-[#FBE4D8]">
+          <tbody className="divide-y divide-brand-300/30 text-xs text-stone-800">
             {filteredComputers.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-14 text-center">
                   <div className="max-w-sm mx-auto flex flex-col items-center">
-                    <div className="w-12 h-12 rounded bg-[#190019] border border-[#522B5B] flex items-center justify-center text-[#DFB6B2] mb-3">
-                      <Laptop className="w-6 h-6" />
+                    <div className="w-14 h-14 rounded-2xl bg-brand-100/60 border border-brand-300/40 flex items-center justify-center text-brand-600 mb-3 shadow-sm">
+                      <Laptop className="w-7 h-7" />
                     </div>
-                    <p className="font-semibold text-[#FBE4D8] text-sm">
+                    <p className="font-semibold text-stone-900 text-sm">
                       {computers.length === 0 
-                        ? 'Inventario sin equipos registrados' 
-                        : 'No se encontraron coincidencias'}
+                        ? 'Tu inventario está listo' 
+                        : 'No se encontraron equipos'}
                     </p>
-                    <p className="text-xs text-[#DFB6B2]/70 mt-1 mb-4 text-center">
+                    <p className="text-xs text-stone-500 mt-1 mb-4 text-center">
                       {computers.length === 0
-                        ? 'Comienza registrando tu primer computador con el botón superior.'
-                        : 'Verifica los términos de búsqueda o el filtro de estado seleccionado.'}
+                        ? 'Aún no has registrado ningún computador. Haz clic abajo para añadir tu primer equipo.'
+                        : searchQuery
+                          ? 'No hay registros que coincidan con los términos de búsqueda.'
+                          : 'No hay equipos registrados con este filtro de estado.'}
                     </p>
                     {computers.length === 0 && (
                       <button
                         type="button"
                         onClick={openRegisterDrawer}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#FBE4D8] hover:bg-[#DFB6B2] text-[#190019] font-mono text-xs font-semibold shadow-sm transition"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-600/90 text-white font-semibold text-xs shadow-sm transition active:scale-95"
                       >
                         <Plus className="w-4 h-4 stroke-[2.5]" />
-                        <span>Registrar primer equipo</span>
+                        <span>Registrar mi primer computador</span>
                       </button>
                     )}
                   </div>
@@ -147,135 +145,138 @@ export const ComputerTable: React.FC = () => {
               filteredComputers.map((computer) => {
                 const isAvailable = computer.status === 'Disponible';
                 const isLoaned = computer.status === 'Prestado';
-                const isExpanded = !!expandedAccordions[computer.id];
-                const mntCount = computer.maintenanceHistory?.length || 0;
 
                 return (
-                  <React.Fragment key={computer.id}>
-                    <tr
-                      className={`transition-colors ${
-                        isExpanded ? 'bg-[#190019]/60' : 'hover:bg-[#522B5B]/20'
-                      }`}
-                    >
-                      {/* Código / ID */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span className="font-mono font-bold text-[#FBE4D8] text-xs">
-                            {computer.id}
-                          </span>
-                          <div className="flex items-center gap-1 text-[11px] font-mono text-[#DFB6B2] mt-0.5">
-                            <Barcode className="w-3.5 h-3.5 shrink-0 text-[#DFB6B2]" />
-                            <span>{computer.barcode}</span>
-                          </div>
+                  <tr
+                    key={computer.id}
+                    className="hover:bg-brand-100/25 transition-colors group"
+                  >
+                    {/* Código / ID */}
+                    <td className="py-3.5 px-4 sm:px-5 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="font-mono font-bold text-stone-900 text-xs">
+                          {computer.id}
+                        </span>
+                        <div className="flex items-center gap-1 text-[11px] font-mono text-stone-500 mt-0.5">
+                          <Barcode className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                          <span>{computer.barcode}</span>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Equipo */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-[#FBE4D8] text-xs">
-                            {computer.name}
-                          </span>
-                          <span className="text-[11px] text-[#DFB6B2] font-mono">
-                            {computer.brand} &bull; {computer.model}
+                    {/* Equipo */}
+                    <td className="py-3.5 px-4 sm:px-5">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-stone-900 text-sm">
+                          {computer.name}
+                        </span>
+                        <span className="text-[11px] text-stone-500">
+                          {computer.brand} • {computer.model}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Especificaciones: chips discretos */}
+                    <td className="py-3.5 px-4 sm:px-5">
+                      <div className="flex flex-wrap items-center gap-1.5 max-w-[320px]">
+                        {/* Chip CPU */}
+                        <span 
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-50 border border-brand-300/50 text-[11px] text-stone-700 font-mono"
+                          title={`Procesador: ${computer.processor}`}
+                        >
+                          <Cpu className="w-3 h-3 text-brand-600" />
+                          <span className="truncate max-w-[110px]">{computer.processor}</span>
+                        </span>
+
+                        {/* Chip RAM */}
+                        <span 
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-50 border border-brand-300/50 text-[11px] text-stone-700 font-mono"
+                          title={`Memoria RAM: ${computer.ram}`}
+                        >
+                          <MemoryStick className="w-3 h-3 text-brand-600" />
+                          <span>{computer.ram}</span>
+                        </span>
+
+                        {/* Chip Almacenamiento */}
+                        <span 
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-50 border border-brand-300/50 text-[11px] text-stone-700 font-mono"
+                          title={`Almacenamiento: ${computer.storage}`}
+                        >
+                          <HardDrive className="w-3 h-3 text-brand-600" />
+                          <span>{computer.storage}</span>
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Ubicación actual */}
+                    <td className="py-3.5 px-4 sm:px-5 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 text-stone-700">
+                        <MapPin className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+                        <span className="text-xs font-semibold text-stone-800">
+                          {computer.location}
+                        </span>
+                      </div>
+
+                      {/* Info de préstamo si está prestado */}
+                      {isLoaned && computer.currentLoan && (
+                        <div className="flex items-center gap-1 text-[11px] text-amber-800 font-medium mt-1">
+                          <UserCheck className="w-3 h-3 shrink-0 text-amber-600" />
+                          <span className="truncate max-w-[150px]" title={computer.currentLoan.borrowerName}>
+                            {computer.currentLoan.borrowerName}
                           </span>
                         </div>
-                      </td>
+                      )}
+                    </td>
 
-                      {/* Specs */}
-                      <td className="py-3.5 px-4">
-                        <div className="text-[11px] font-mono text-[#DFB6B2] space-y-0.5 max-w-[280px]">
-                          <div className="flex items-center gap-1 text-[#FBE4D8]/90">
-                            <Cpu className="w-3 h-3 text-[#DFB6B2] shrink-0" />
-                            <span className="truncate">{computer.processor}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-[#DFB6B2]">
-                            <span>RAM: {computer.ram}</span>
-                            <span className="text-[#522B5B]">&bull;</span>
-                            <span className="flex items-center gap-1">
-                              <HardDrive className="w-3 h-3" />
-                              {computer.storage}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
+                    {/* Estado: Badge semántico con punto de luz */}
+                    <td className="py-3.5 px-4 sm:px-5 whitespace-nowrap">
+                      <StatusBadge status={computer.status} />
+                    </td>
 
-                      {/* Ubicación actual */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 text-[#DFB6B2]">
-                          <MapPin className="w-3.5 h-3.5 text-[#DFB6B2] shrink-0" />
-                          <span className="text-xs text-[#FBE4D8]">
-                            {computer.location}
-                          </span>
-                        </div>
-
-                        {/* Info de préstamo si está prestado */}
-                        {isLoaned && computer.currentLoan && (
-                          <div className="flex items-center gap-1 text-[11px] text-amber-300 font-mono mt-1">
-                            <UserCheck className="w-3 h-3 shrink-0 text-amber-400" />
-                            <span className="truncate max-w-[150px]" title={computer.currentLoan.borrowerName}>
-                              {computer.currentLoan.borrowerName}
-                            </span>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Estado: Badge semántico traslúcido */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <StatusBadge status={computer.status} />
-                      </td>
-
-                      {/* Acciones */}
-                      <td className="py-3.5 px-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Botón "Prestar" */}
-                          {isAvailable && (
-                            <button
-                              type="button"
-                              onClick={() => openLoanModal(computer.id)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#190019] hover:bg-[#522B5B] text-[#FBE4D8] border border-[#522B5B] font-mono text-[11px] transition shadow-sm"
-                              title="Prestar equipo"
-                            >
-                              <span>Prestar</span>
-                              <ArrowUpRight className="w-3 h-3 stroke-[2]" />
-                            </button>
-                          )}
-
-                          {/* Botón "Devolver" */}
-                          {isLoaned && (
-                            <button
-                              type="button"
-                              onClick={() => openReturnModal(computer.id)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-950/40 hover:bg-amber-950/70 border border-amber-500/30 text-amber-300 font-mono text-[11px] transition shadow-sm"
-                              title="Registrar devolución"
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                              <span>Devolver</span>
-                            </button>
-                          )}
-
-                          {/* FASE 7: Botón Desplegable del Historial de Mantenimientos */}
+                    {/* Acciones */}
+                    <td className="py-3.5 px-4 sm:px-5 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Botón "Prestar" (visible en Disponible) */}
+                        {isAvailable && (
                           <button
                             type="button"
-                            onClick={() => toggleAccordion(computer.id)}
-                            className={cn(
-                              'px-2.5 py-1 rounded border font-mono text-[11px] flex items-center gap-1 transition-colors',
-                              isExpanded
-                                ? 'bg-[#854F6C] text-[#FBE4D8] border-[#DFB6B2]'
-                                : 'bg-[#190019] text-[#DFB6B2] border-[#522B5B] hover:bg-[#522B5B] hover:text-[#FBE4D8]'
-                            )}
-                            title="Ver historial de mantenimiento y registrar intervenciones"
+                            onClick={() => openLoanModal(computer.id)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-600/90 text-white font-semibold text-xs transition shadow-sm active:scale-95"
+                            title="Prestar equipo a un usuario o sala"
                           >
-                            <Wrench className="w-3 h-3" />
-                            <span>Historial ({mntCount})</span>
-                            {isExpanded ? (
-                              <ChevronUp className="w-3 h-3" />
-                            ) : (
-                              <ChevronDown className="w-3 h-3" />
-                            )}
+                            <span>Prestar</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
                           </button>
+                        )}
 
-                          {/* Eliminar registro */}
+                        {/* Botón "Devolver" (visible en Prestado) */}
+                        {isLoaned && (
+                          <button
+                            type="button"
+                            onClick={() => openReturnModal(computer.id)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 font-semibold text-xs transition shadow-sm active:scale-95"
+                            title="Registrar devolución a Bodega Central"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Devolver</span>
+                          </button>
+                        )}
+
+                        {/* Opciones auxiliares */}
+                        <div className="inline-flex items-center gap-1">
+                          {/* Botón "Dar de Alta" (visible en Mantenimiento) */}
+                          {computer.status === 'En Mantenimiento' && (
+                            <button
+                              type="button"
+                              onClick={() => updateStatus(computer.id, 'Disponible', 'Mantenimiento finalizado con éxito')}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-[11px] font-medium transition"
+                              title="Marcar como Disponible"
+                            >
+                              Dar de Alta
+                            </button>
+                          )}
+
+                          {/* Botón de eliminar registro */}
                           <button
                             type="button"
                             onClick={() => {
@@ -283,24 +284,15 @@ export const ComputerTable: React.FC = () => {
                                 deleteComputer(computer.id);
                               }
                             }}
-                            className="p-1 rounded bg-[#190019] hover:bg-rose-950/50 text-[#DFB6B2] hover:text-rose-400 border border-[#522B5B] transition"
-                            title="Eliminar equipo del sistema"
+                            className="p-1.5 rounded-lg bg-stone-100 hover:bg-rose-50 text-stone-400 hover:text-rose-600 border border-stone-200 hover:border-rose-200 transition"
+                            title="Eliminar registro"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-
-                    {/* FASE 7: Fila Expandida del Acordeón de Mantenimiento */}
-                    {isExpanded && (
-                      <tr>
-                        <td colSpan={6} className="p-0 border-b border-[#522B5B]">
-                          <MaintenanceAccordion computer={computer} />
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
+                      </div>
+                    </td>
+                  </tr>
                 );
               })
             )}
@@ -309,13 +301,13 @@ export const ComputerTable: React.FC = () => {
       </div>
 
       {/* Footer informativo de la tabla */}
-      <div className="p-3 bg-[#190019] border-t border-[#522B5B] text-[11px] font-mono text-[#DFB6B2] flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div className="p-3.5 bg-stone-50 border-t border-brand-300/40 text-[11px] text-stone-500 flex flex-col sm:flex-row items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>Equipos sincronizados en tiempo real con LocalStorage</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Equipos en tiempo real guardados en tu almacenamiento local</span>
         </div>
-        <div>
-          AuraStock Engine &bull; Rendimiento Sub-milisegundo
+        <div className="font-mono text-[10px] text-stone-400">
+          AuraStock Engine • v1.0
         </div>
       </div>
     </div>

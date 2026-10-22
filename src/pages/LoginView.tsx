@@ -34,76 +34,74 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
       login(email, password);
       setIsLoading(false);
       if (onSuccess) onSuccess();
-    }, 250);
+    }, 350);
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-[#190019] text-[#FBE4D8] overflow-hidden selection:bg-[#854F6C] selection:text-[#FBE4D8]">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-[#FDFBF9] overflow-hidden selection:bg-brand-600 selection:text-white">
+      {/* Fondos y halos luminosos muy suaves basados en #FBE4D8 y #DFB6B2 */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-100/50 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-300/30 rounded-full blur-[120px] pointer-events-none" />
+
       <div className="relative w-full max-w-md z-10">
-        
-        {/* Branding superior */}
-        <div className="text-center mb-6 flex flex-col items-center">
+        {/* Branding superior: LOGO OFICIAL SUELTO sin cuadro contenedor */}
+        <div className="text-center mb-8 flex flex-col items-center">
           <img 
             src={logoImg} 
             alt="AuraStock" 
-            className="h-20 w-auto object-contain mb-2 brightness-110" 
+            className="h-28 w-auto object-contain mb-2 drop-shadow-sm" 
           />
-          <h1 className="text-xl font-mono font-bold tracking-tight text-[#FBE4D8]">
-            AuraStock Core TI
-          </h1>
-          <p className="text-[#DFB6B2] text-xs font-mono">
-            Control de Inventario y Hardware
+          <p className="text-stone-500 text-xs sm:text-sm font-medium">
+            Control de Inventario TI
           </p>
         </div>
 
-        {/* Tarjeta de Login Técnica */}
-        <div className="bg-[#2B124C] border border-[#522B5B] rounded-xl p-6 shadow-xl">
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#522B5B]">
+        {/* Tarjeta de Login en Modo Claro */}
+        <div className="bg-white border border-brand-300/50 rounded-2xl p-7 shadow-md">
+          <div className="flex items-center justify-between pb-5 mb-5 border-b border-brand-300/30">
             <div>
-              <h2 className="text-sm font-mono font-semibold uppercase tracking-wider text-[#FBE4D8]">
-                Iniciar Sesión
-              </h2>
-              <p className="text-[11px] text-[#DFB6B2]">Acceso con credenciales de técnico o administrador</p>
+              <h2 className="text-lg font-bold text-stone-900">Iniciar Sesión</h2>
+              <p className="text-xs text-stone-500 mt-0.5">Ingresa al sistema de inventario</p>
             </div>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#190019] text-[10px] font-mono text-[#DFB6B2] border border-[#522B5B]">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Auth Core</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-100 text-[11px] font-semibold text-brand-600 border border-brand-300/60">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
+              <span>Acceso Seguro</span>
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 p-2.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#DFB6B2] mb-1">
+              <label className="block text-xs font-semibold text-stone-700 mb-1.5">
                 Correo Electrónico
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#DFB6B2]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@aurastock.ti"
+                  placeholder="tu.correo@empresa.com"
                   required
-                  className="w-full pl-9 pr-3 py-2 rounded bg-[#190019] border border-[#522B5B] text-[#FBE4D8] placeholder-[#DFB6B2]/40 text-xs focus:outline-none focus:border-[#DFB6B2]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase text-[#DFB6B2] mb-1">
+              <label className="block text-xs font-semibold text-stone-700 mb-1.5">
                 Contraseña
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#DFB6B2]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -112,19 +110,19 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-9 pr-3 py-2 rounded bg-[#190019] border border-[#522B5B] text-[#FBE4D8] placeholder-[#DFB6B2]/40 text-xs focus:outline-none focus:border-[#DFB6B2]"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 transition"
                 />
               </div>
             </div>
 
-            {/* Botón Primario */}
+            {/* Botón Primario CTA */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded bg-[#FBE4D8] hover:bg-[#DFB6B2] text-[#190019] font-mono font-semibold text-xs transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
+              className="w-full py-3 px-4 rounded-xl bg-brand-600 hover:bg-brand-600/90 text-white font-semibold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] disabled:opacity-60"
             >
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-[#190019] border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <span>Ingresar al Sistema</span>
@@ -136,8 +134,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
         </div>
 
         {/* Footer info */}
-        <p className="text-center text-[11px] text-[#DFB6B2]/60 mt-4 font-mono">
-          AuraStock &bull; Control y Trazabilidad de Hardware TI
+        <p className="text-center text-xs text-stone-400 mt-6 font-medium">
+          AuraStock • Sistema de Control de Activos Informáticos
         </p>
       </div>
     </div>

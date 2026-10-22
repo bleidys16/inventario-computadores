@@ -9,38 +9,38 @@ interface StatusBadgeProps {
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'sm' }) => {
   const config = {
     'Disponible': {
-      label: 'DISPONIBLE',
-      classes: 'bg-emerald-950/50 text-emerald-300 border-emerald-500/30',
-      dot: 'bg-emerald-400',
+      label: 'Disponible',
+      classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      dot: 'bg-emerald-500',
     },
     'Prestado': {
-      label: 'PRESTADO',
-      classes: 'bg-amber-950/50 text-amber-300 border-amber-500/30',
-      dot: 'bg-amber-400',
+      label: 'Prestado',
+      classes: 'bg-amber-50 text-amber-800 border-amber-200',
+      dot: 'bg-amber-500',
     },
     'En Mantenimiento': {
-      label: 'MANTENIMIENTO',
-      classes: 'bg-rose-950/50 text-rose-300 border-rose-500/30',
-      dot: 'bg-rose-400 animate-pulse',
+      label: 'En Mantenimiento',
+      classes: 'bg-rose-50 text-rose-700 border-rose-200',
+      dot: 'bg-rose-500',
     },
     'De Baja': {
-      label: 'DE BAJA',
-      classes: 'bg-zinc-900/70 text-zinc-400 border-zinc-600/30',
-      dot: 'bg-zinc-500',
+      label: 'De Baja',
+      classes: 'bg-stone-100 text-stone-600 border-stone-200',
+      dot: 'bg-stone-400',
     },
   }[status] || {
-    label: (status as string).toUpperCase(),
-    classes: 'bg-brand-900 text-brand-300 border-brand-800',
-    dot: 'bg-brand-600',
+    label: status as string,
+    classes: 'bg-stone-100 text-stone-700 border-stone-200',
+    dot: 'bg-stone-500',
   };
 
   const sizeClasses = size === 'sm'
-    ? 'text-[11px] px-2 py-0.5 tracking-wider'
-    : 'text-xs px-2.5 py-1 tracking-wider';
+    ? 'text-[11px] px-2.5 py-0.5'
+    : 'text-xs px-3 py-1';
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-mono font-medium rounded border ${config.classes} ${sizeClasses}`}
+      className={`inline-flex items-center gap-1.5 font-medium rounded-full border ${config.classes} ${sizeClasses}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
       <span>{config.label}</span>

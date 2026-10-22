@@ -1,112 +1,64 @@
 import React from 'react';
-import { useInventoryStore } from '../store/useInventoryStore';
 import { Navbar } from '../components/layout/Navbar';
 import { KpiGrid } from '../components/dashboard/KpiGrid';
 import { ComputerTable } from '../components/dashboard/ComputerTable';
-import { NodesView } from '../components/dashboard/NodesView';
-import { QuotesView } from '../components/dashboard/QuotesView';
 import { RegisterComputerSheet } from '../components/sheet/RegisterComputerSheet';
 import { LoanModal } from '../components/modals/LoanModal';
 import { ReturnModal } from '../components/modals/ReturnModal';
-import { Database, Terminal, ShieldCheck } from 'lucide-react';
+import { Database } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
-  const { activeTab, computers, nodes } = useInventoryStore();
-
-  const availableCount = computers.filter((c) => c.status === 'Disponible').length;
-  const loanedCount = computers.filter((c) => c.status === 'Prestado').length;
-  const maintenanceCount = computers.filter((c) => c.status === 'En Mantenimiento').length;
-  const activeNodesCount = nodes.filter((n) => n.networkStatus === 'Activo').length;
-
   return (
-    <div className="min-h-screen bg-[#190019] text-[#FBE4D8] flex flex-col font-sans">
-      {/* 1. Navbar Superior con Búsqueda, Modo Escáner y Pestañas */}
+    <div className="min-h-screen bg-[#FDFBF9] text-stone-900 flex flex-col selection:bg-brand-600 selection:text-white font-sans">
+      {/* 1. Navbar Superior Fija en Modo Claro */}
       <Navbar />
 
       {/* 2. Contenedor Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         
-        {/* Banner Técnico de Estado Operativo */}
-        <div className="bg-[#2B124C] border border-[#522B5B] rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-[#DFB6B2]" />
-            <span className="text-[#DFB6B2] uppercase tracking-wider text-[11px]">
-              Panel de Control Operativo
-            </span>
-            <span className="text-[#522B5B]">&bull;</span>
-            <span className="text-[#FBE4D8]">
-              {activeTab === 'inventory' && 'Inventario Principal y Control de Préstamos'}
-              {activeTab === 'nodes' && 'Topología de Red y Distribución Física'}
-              {activeTab === 'quotes' && 'Cotizaciones y Suministros TI Mayoristas'}
-            </span>
+        {/* Banner superior de bienvenida */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-brand-300/40">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 font-sans">
+                Inventario de Computadores
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                En Línea
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-stone-500">
+              Control de préstamos, salas, especificaciones de hardware y trazabilidad.
+            </p>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px]">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-[#DFB6B2]">Disponibles:</span>
-              <span className="text-[#FBE4D8] font-semibold">{availableCount}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="text-[#DFB6B2]">En Préstamo:</span>
-              <span className="text-[#FBE4D8] font-semibold">{loanedCount}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-rose-400" />
-              <span className="text-[#DFB6B2]">Mantenimiento:</span>
-              <span className="text-[#FBE4D8] font-semibold">{maintenanceCount}</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5 border-l border-[#522B5B] pl-3">
-              <Database className="w-3.5 h-3.5 text-[#DFB6B2]" />
-              <span className="text-[#DFB6B2]">Nodos Activos:</span>
-              <span className="text-[#FBE4D8] font-semibold">{activeNodesCount}/{nodes.length}</span>
-            </div>
+          <div className="flex items-center gap-2 self-start md:self-auto text-xs text-stone-600 bg-white border border-brand-300/50 px-3.5 py-2 rounded-xl shadow-sm">
+            <Database className="w-3.5 h-3.5 text-brand-600" />
+            <span className="font-medium">Almacenamiento Local Activo</span>
           </div>
         </div>
 
-        {/* 3. Vistas según la pestaña activa */}
-        {activeTab === 'inventory' && (
-          <div className="space-y-6">
-            <section aria-label="Métricas de Inventario">
-              <KpiGrid />
-            </section>
-            <section aria-label="Tabla de Equipos">
-              <ComputerTable />
-            </section>
-          </div>
-        )}
+        {/* 3. Fila de KPIs */}
+        <section aria-label="Métricas de Inventario">
+          <KpiGrid />
+        </section>
 
-        {activeTab === 'nodes' && (
-          <section aria-label="Geolocalización de Nodos">
-            <NodesView />
-          </section>
-        )}
-
-        {activeTab === 'quotes' && (
-          <section aria-label="Cotizaciones Proveedores TI">
-            <QuotesView />
-          </section>
-        )}
+        {/* 4. Tabla Densa con Listado de Equipos */}
+        <section aria-label="Tabla de Equipos">
+          <ComputerTable />
+        </section>
 
       </main>
 
-      {/* 4. Modales y Paneles Deslizantes Preexistentes */}
+      {/* 5. Modales y Paneles Deslizantes */}
       <RegisterComputerSheet />
       <LoanModal />
       <ReturnModal />
 
-      {/* Footer Minimalista Técnico */}
-      <footer className="border-t border-[#522B5B] bg-[#190019] py-4 px-4 text-xs font-mono text-[#DFB6B2]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>AuraStock Core TI &mdash; Persistencia LocalStorage Activa</span>
-          </div>
-          <div className="text-[11px] text-[#DFB6B2]/70">
-            Arquitectura React 19 + TypeScript + Zustand + Tailwind CSS
-          </div>
-        </div>
+      {/* Footer minimalista */}
+      <footer className="border-t border-brand-300/40 bg-white py-4 px-4 text-center text-xs text-stone-500">
+        <p>AuraStock © 2025 • Control Inteligente de Inventario TI.</p>
       </footer>
     </div>
   );
