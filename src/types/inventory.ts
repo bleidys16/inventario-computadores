@@ -1,6 +1,18 @@
 export type ComputerStatus = 'Disponible' | 'Prestado' | 'En Mantenimiento' | 'De Baja';
 
-export type SecondaryTab = 'inventory' | 'nodes' | 'quotes';
+export type UserRole = 'admin' | 'usuario';
+
+export interface AppUser {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  department?: string;
+  createdAt: string;
+}
+
+export type SecondaryTab = 'inventory' | 'nodes' | 'quotes' | 'users';
 
 export interface Specs {
   processor: string;
@@ -39,6 +51,7 @@ export interface Computer {
   ram: string;
   storage: string;
   location: string;
+  imageUrl?: string;
   nodeId?: string;
   status: ComputerStatus;
   currentLoan?: Loan;
@@ -58,6 +71,7 @@ export interface CreateComputerDTO {
   ram: string;
   storage: string;
   location?: string;
+  imageUrl?: string;
   nodeId?: string;
   notes?: string;
 }

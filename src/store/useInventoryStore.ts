@@ -22,13 +22,24 @@ interface InventoryState {
   statusFilter: ComputerStatus | 'Todos';
   selectedComputerId: string | null;
 
-  // FASE 6: Modo Escáner y Métrica de rendimiento
+  // Hoja de Vida (HV) modal
+  isDetailModalOpen: boolean;
+  selectedDetailComputerId: string | null;
+  openDetailModal: (computerId: string) => void;
+  closeDetailModal: () => void;
+
+  // User Management Modal
+  isUserManagementModalOpen: boolean;
+  openUserManagementModal: () => void;
+  closeUserManagementModal: () => void;
+
+  // Modo Escáner y Métrica
   isScannerMode: boolean;
   searchExecutionTime: number;
   hasMeasuredScan: boolean;
   setScannerMode: (active?: boolean) => void;
 
-  // FASE 7: Acordeón de mantenimiento
+  // Acordeón de mantenimiento
   expandedAccordions: Record<string, boolean>;
   toggleAccordion: (computerId: string) => void;
   addMaintenance: (
@@ -37,16 +48,16 @@ interface InventoryState {
     newStatus?: ComputerStatus | null
   ) => void;
 
-  // FASE 8: Pestañas secundarias
+  // Pestañas secundarias
   activeTab: SecondaryTab;
   setActiveTab: (tab: SecondaryTab) => void;
 
-  // Modales y drawers originales
+  // Modales y drawers
   isLoanModalOpen: boolean;
   isReturnModalOpen: boolean;
   isRegisterDrawerOpen: boolean;
 
-  // Acciones originales
+  // Acciones de inventario
   addComputer: (dto: CreateComputerDTO) => void;
   updateStatus: (id: string, status: ComputerStatus, notes?: string) => void;
   loanComputer: (computerId: string, loanData: CreateLoanDTO) => void;
@@ -80,6 +91,11 @@ export const useInventoryStore = create<InventoryState>()(
       statusFilter: 'Todos',
       selectedComputerId: null,
 
+      isDetailModalOpen: false,
+      selectedDetailComputerId: null,
+
+      isUserManagementModalOpen: false,
+
       isScannerMode: false,
       searchExecutionTime: 0.38,
       hasMeasuredScan: false,
@@ -90,6 +106,16 @@ export const useInventoryStore = create<InventoryState>()(
       isLoanModalOpen: false,
       isReturnModalOpen: false,
       isRegisterDrawerOpen: false,
+
+      openDetailModal: (computerId: string) => {
+        set({ isDetailModalOpen: true, selectedDetailComputerId: computerId });
+      },
+      closeDetailModal: () => {
+        set({ isDetailModalOpen: false, selectedDetailComputerId: null });
+      },
+
+      openUserManagementModal: () => set({ isUserManagementModalOpen: true }),
+      closeUserManagementModal: () => set({ isUserManagementModalOpen: false }),
 
       setActiveTab: (tab: SecondaryTab) => set({ activeTab: tab }),
 
@@ -108,7 +134,6 @@ export const useInventoryStore = create<InventoryState>()(
         }));
       },
 
-      // FASE 7: Agregar registro de mantenimiento con actualización de estado
       addMaintenance: (computerId, data, newStatus = null) => {
         const timestamp = new Date();
         const formattedDate = `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')} ${String(timestamp.getHours()).padStart(2, '0')}:${String(timestamp.getMinutes()).padStart(2, '0')}`;
@@ -144,7 +169,6 @@ export const useInventoryStore = create<InventoryState>()(
         }));
       },
 
-      // FASE 6: Filtrado medido con performance.now()
       setSearchQuery: (query: string) => {
         const start = performance.now();
         const computers = get().computers;
@@ -177,6 +201,14 @@ export const useInventoryStore = create<InventoryState>()(
 
       addComputer: (dto: CreateComputerDTO) => {
         const now = new Date().toISOString();
+        const fallbackImages = [
+          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1544731612-de292439cc4b?w=600&auto=format&fit=crop&q=80',
+        ];
+        const randomImg = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+
         const newComputer: Computer = {
           id: dto.id.trim() || `AST-${Math.floor(100 + Math.random() * 900)}`,
           barcode: dto.barcode.trim() || `${Date.now()}`,
@@ -187,6 +219,7 @@ export const useInventoryStore = create<InventoryState>()(
           ram: dto.ram.trim(),
           storage: dto.storage.trim(),
           location: dto.location?.trim() || 'Bodega Central',
+          imageUrl: dto.imageUrl?.trim() || randomImg,
           nodeId: dto.nodeId || 'NODE-MED-01',
           status: 'Disponible',
           notes: dto.notes?.trim() || undefined,
@@ -338,7 +371,7 @@ export const useInventoryStore = create<InventoryState>()(
       },
     }),
     {
-      name: 'aurastock-inventory-storage',
+      name: 'aurastock-inventory-v4-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ 
         computers: state.computers,
