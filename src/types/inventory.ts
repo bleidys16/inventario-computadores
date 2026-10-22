@@ -1,5 +1,7 @@
 export type ComputerStatus = 'Disponible' | 'Prestado' | 'En Mantenimiento' | 'De Baja';
 
+export type SecondaryTab = 'inventory' | 'nodes' | 'quotes';
+
 export interface Specs {
   processor: string;
   ram: string;
@@ -19,6 +21,14 @@ export interface Loan {
   notes?: string;
 }
 
+export interface MaintenanceRecord {
+  id: string;
+  date: string;
+  technician: string;
+  type: 'Preventivo' | 'Correctivo' | 'Actualización' | 'Diagnóstico' | string;
+  description: string;
+}
+
 export interface Computer {
   id: string;
   barcode: string;
@@ -29,8 +39,10 @@ export interface Computer {
   ram: string;
   storage: string;
   location: string;
+  nodeId?: string;
   status: ComputerStatus;
   currentLoan?: Loan;
+  maintenanceHistory?: MaintenanceRecord[];
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -46,6 +58,7 @@ export interface CreateComputerDTO {
   ram: string;
   storage: string;
   location?: string;
+  nodeId?: string;
   notes?: string;
 }
 
@@ -64,4 +77,33 @@ export interface InventoryStats {
   loaned: number;
   maintenance: number;
   decommissioned: number;
+}
+
+export interface TINode {
+  id: string;
+  name: string;
+  room: string;
+  coordinates: string;
+  networkStatus: 'Activo' | 'Inactivo';
+  subnet: string;
+  gateway: string;
+  pingMs: number;
+}
+
+export interface ComponentQuote {
+  id: string;
+  name: string;
+  category: string;
+  sku: string;
+  specs: string;
+  prices: {
+    alfa: number;
+    beta: number;
+    gamma: number;
+  };
+  stock: {
+    alfa: number;
+    beta: number;
+    gamma: number;
+  };
 }

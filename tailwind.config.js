@@ -8,10 +8,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          // Los 3 colores exactos de la imagen solicitados:
-          600: '#854F6C', // Malva ciruela (acento primario)
-          300: '#DFB6B2', // Rosa suave empolvado (bordes y separadores)
-          100: '#FBE4D8', // Crema cuarzo claro (fondos sutiles y highlights)
+          950: '#190019',
+          900: '#2B124C',
+          800: '#522B5B',
+          600: '#854F6C',
+          300: '#DFB6B2',
+          100: '#FBE4D8',
         },
       },
       fontFamily: {
@@ -19,8 +21,8 @@ export default {
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       boxShadow: {
-        'brand-soft': '0 4px 20px -2px rgba(133, 79, 108, 0.08)',
-        'card-light': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+        'brand-soft': '0 4px 20px -2px rgba(82, 43, 91, 0.2)',
+        'tech-card': '0 1px 3px 0 rgba(0, 0, 0, 0.4)',
       },
     },
   },

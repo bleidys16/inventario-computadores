@@ -5,20 +5,48 @@ import type {
   ComputerStatus, 
   CreateComputerDTO, 
   CreateLoanDTO, 
-  InventoryStats 
+  InventoryStats,
+  SecondaryTab,
+  TINode,
+  ComponentQuote,
+  MaintenanceRecord
 } from '../types/inventory';
+import { INITIAL_COMPUTERS, INITIAL_NODES, INITIAL_COMPONENTS_QUOTES } from '../data/initialComputers';
 
 interface InventoryState {
   computers: Computer[];
+  nodes: TINode[];
+  quotes: ComponentQuote[];
+
   searchQuery: string;
   statusFilter: ComputerStatus | 'Todos';
   selectedComputerId: string | null;
 
+  // FASE 6: Modo Escáner y Métrica de rendimiento
+  isScannerMode: boolean;
+  searchExecutionTime: number;
+  hasMeasuredScan: boolean;
+  setScannerMode: (active?: boolean) => void;
+
+  // FASE 7: Acordeón de mantenimiento
+  expandedAccordions: Record<string, boolean>;
+  toggleAccordion: (computerId: string) => void;
+  addMaintenance: (
+    computerId: string, 
+    data: { technician: string; description: string; type?: string }, 
+    newStatus?: ComputerStatus | null
+  ) => void;
+
+  // FASE 8: Pestañas secundarias
+  activeTab: SecondaryTab;
+  setActiveTab: (tab: SecondaryTab) => void;
+
+  // Modales y drawers originales
   isLoanModalOpen: boolean;
   isReturnModalOpen: boolean;
   isRegisterDrawerOpen: boolean;
 
-  // Acciones
+  // Acciones originales
   addComputer: (dto: CreateComputerDTO) => void;
   updateStatus: (id: string, status: ComputerStatus, notes?: string) => void;
   loanComputer: (computerId: string, loanData: CreateLoanDTO) => void;
@@ -44,15 +72,108 @@ interface InventoryState {
 export const useInventoryStore = create<InventoryState>()(
   persist(
     (set, get) => ({
-      // Inicia limpio sin datos demo para que el usuario ingrese sus propios equipos
-      computers: [],
+      computers: INITIAL_COMPUTERS,
+      nodes: INITIAL_NODES,
+      quotes: INITIAL_COMPONENTS_QUOTES,
+
       searchQuery: '',
       statusFilter: 'Todos',
       selectedComputerId: null,
 
+      isScannerMode: false,
+      searchExecutionTime: 0.38,
+      hasMeasuredScan: false,
+
+      expandedAccordions: {},
+      activeTab: 'inventory',
+
       isLoanModalOpen: false,
       isReturnModalOpen: false,
       isRegisterDrawerOpen: false,
+
+      setActiveTab: (tab: SecondaryTab) => set({ activeTab: tab }),
+
+      setScannerMode: (active?: boolean) => {
+        set((state) => ({
+          isScannerMode: typeof active === 'boolean' ? active : !state.isScannerMode,
+        }));
+      },
+
+      toggleAccordion: (computerId: string) => {
+        set((state) => ({
+          expandedAccordions: {
+            ...state.expandedAccordions,
+            [computerId]: !state.expandedAccordions[computerId],
+          },
+        }));
+      },
+
+      // FASE 7: Agregar registro de mantenimiento con actualización de estado
+      addMaintenance: (computerId, data, newStatus = null) => {
+        const timestamp = new Date();
+        const formattedDate = `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, '0')}-${String(timestamp.getDate()).padStart(2, '0')} ${String(timestamp.getHours()).padStart(2, '0')}:${String(timestamp.getMinutes()).padStart(2, '0')}`;
+        
+        const newRecord: MaintenanceRecord = {
+          id: `MNT-${Date.now().toString().slice(-5)}`,
+          date: formattedDate,
+          technician: data.technician.trim() || 'Técnico TI',
+          type: data.type || 'Preventivo',
+          description: data.description.trim(),
+        };
+
+        set((state) => ({
+          computers: state.computers.map((comp) => {
+            if (comp.id !== computerId) return comp;
+
+            const existingHistory = comp.maintenanceHistory || [];
+            const updatedComp: Computer = {
+              ...comp,
+              maintenanceHistory: [newRecord, ...existingHistory],
+              updatedAt: new Date().toISOString(),
+            };
+
+            if (newStatus) {
+              updatedComp.status = newStatus;
+              if (newStatus === 'Disponible' || newStatus === 'De Baja') {
+                updatedComp.currentLoan = undefined;
+              }
+            }
+
+            return updatedComp;
+          }),
+        }));
+      },
+
+      // FASE 6: Filtrado medido con performance.now()
+      setSearchQuery: (query: string) => {
+        const start = performance.now();
+        const computers = get().computers;
+        const normalized = query.toLowerCase().trim();
+
+        if (normalized.length > 0) {
+          computers.filter((computer) => {
+            return (
+              computer.name.toLowerCase().includes(normalized) ||
+              computer.id.toLowerCase().includes(normalized) ||
+              computer.barcode.toLowerCase().includes(normalized) ||
+              computer.brand.toLowerCase().includes(normalized) ||
+              computer.model.toLowerCase().includes(normalized) ||
+              computer.location.toLowerCase().includes(normalized) ||
+              computer.processor.toLowerCase().includes(normalized) ||
+              (computer.currentLoan?.borrowerName.toLowerCase().includes(normalized) ?? false)
+            );
+          });
+        }
+
+        const end = performance.now();
+        const duration = Number((end - start).toFixed(2));
+
+        set({
+          searchQuery: query,
+          searchExecutionTime: duration,
+          hasMeasuredScan: true,
+        });
+      },
 
       addComputer: (dto: CreateComputerDTO) => {
         const now = new Date().toISOString();
@@ -66,8 +187,10 @@ export const useInventoryStore = create<InventoryState>()(
           ram: dto.ram.trim(),
           storage: dto.storage.trim(),
           location: dto.location?.trim() || 'Bodega Central',
+          nodeId: dto.nodeId || 'NODE-MED-01',
           status: 'Disponible',
           notes: dto.notes?.trim() || undefined,
+          maintenanceHistory: [],
           createdAt: now,
           updatedAt: now,
         };
@@ -148,7 +271,6 @@ export const useInventoryStore = create<InventoryState>()(
         }));
       },
 
-      setSearchQuery: (query: string) => set({ searchQuery: query }),
       setStatusFilter: (filter: ComputerStatus | 'Todos') => set({ statusFilter: filter }),
       setSelectedComputerId: (id: string | null) => set({ selectedComputerId: id }),
 
@@ -218,7 +340,10 @@ export const useInventoryStore = create<InventoryState>()(
     {
       name: 'aurastock-inventory-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ computers: state.computers }),
+      partialize: (state) => ({ 
+        computers: state.computers,
+        nodes: state.nodes 
+      }),
     }
   )
 );
